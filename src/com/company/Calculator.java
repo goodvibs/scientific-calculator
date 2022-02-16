@@ -64,16 +64,16 @@ public class Calculator {
     public double calculate(Expression expression) throws Exception {
         ExpressionIterator iter = new ExpressionIterator(expression);
         Deque<Double> nums = new ArrayDeque<>();
-        Deque<String> tokens = new ArrayDeque<>();
+        Deque<String> symbols = new ArrayDeque<>();
         char last = ' ';
         while (iter.hasNext()) {
             if (iter.next() == ' ')
                 continue;
             if (Character.isDigit(iter.curr()) || iter.curr() == '.') {
                 if (last == ')') {
-                    while (!tokens.isEmpty() && hasPrecedence(tokens.peek(), "*"))
-                        nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
-                    tokens.push("*");
+                    while (!symbols.isEmpty() && hasPrecedence(symbols.peek(), "*"))
+                        nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
+                    symbols.push("*");
                 }
                 StringBuilder numBldr = new StringBuilder("0").append(iter.curr());
                 while (iter.hasNext() && (Character.isDigit(iter.peekNext()) || iter.peekNext() == '.'))
@@ -81,37 +81,37 @@ public class Calculator {
                 nums.push(Double.parseDouble(numBldr.toString()));
             } else if (iter.curr() == '(') {
                 if (last == ')' || (Character.isDigit(last))) {
-                    while (!tokens.isEmpty() && hasPrecedence(tokens.peek(), "*"))
-                        nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
-                    tokens.push("*");
+                    while (!symbols.isEmpty() && hasPrecedence(symbols.peek(), "*"))
+                        nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
+                    symbols.push("*");
                 }
-                tokens.push(String.valueOf(iter.curr()));
+                symbols.push(String.valueOf(iter.curr()));
             } else if (iter.curr() == ')') {
                 int commas = 0;
-                while (!tokens.isEmpty() && !tokens.peek().equals("(")) {
-                    if (tokens.peek().equals(",")) {
+                while (!symbols.isEmpty() && !symbols.peek().equals("(")) {
+                    if (symbols.peek().equals(",")) {
                         commas++;
-                        tokens.pop();
+                        symbols.pop();
                     } else
-                        nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
-                } tokens.pop();
-                if (!tokens.isEmpty() && !opsPrecedences.containsKey(tokens.peek()) && !constants.containsKey(tokens.peek())) {
+                        nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
+                } symbols.pop();
+                if (!symbols.isEmpty() && !opsPrecedences.containsKey(symbols.peek()) && !constants.containsKey(symbols.peek())) {
                     List<Double> inputs = new ArrayList<>();
                     for (int i = 0; i <= commas; i++)
                         inputs.add(0, nums.pop());
-                    nums.push(applyFunc(tokens.pop(), inputs));
+                    nums.push(applyFunc(symbols.pop(), inputs));
                 }
             } else if (iter.curr() == ',') {
-                while (!tokens.isEmpty() && !tokens.peek().equals(",") && !tokens.peek().equals("("))
-                    nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
-                tokens.push(",");
+                while (!symbols.isEmpty() && !symbols.peek().equals(",") && !symbols.peek().equals("("))
+                    nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
+                symbols.push(",");
             } else if (opsPrecedences.containsKey(String.valueOf(iter.curr()))) {
-                while (!tokens.isEmpty() && hasPrecedence(tokens.peek(), String.valueOf(iter.curr())))
-                    nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
-                tokens.push(String.valueOf(iter.curr()));
+                while (!symbols.isEmpty() && hasPrecedence(symbols.peek(), String.valueOf(iter.curr())))
+                    nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
+                symbols.push(String.valueOf(iter.curr()));
             } else if (Character.isLetter(iter.curr())) {
                 if (last == ')' || Character.isDigit(last))
-                    tokens.push("*");
+                    symbols.push("*");
                 StringBuilder strBldr = new StringBuilder().append(iter.curr());
                 while (iter.hasNext() && Character.isLetter(iter.peekNext()))
                     strBldr.append(iter.next());
@@ -121,19 +121,19 @@ public class Calculator {
                     if (constant.equals(str)) {
                         nums.push(constants.get(str));
                         isConstant = true;
-                        iter.next(-1);
+                        iter.progress(-1);
                         break;
                     }
                 if (isConstant) {
                     if (iter.hasNext() && iter.next() == '(')
-                        tokens.push("*");
+                        symbols.push("*");
                 } else
-                    tokens.push(str);
+                    symbols.push(str);
             } else
                 throw new Exception("something went wrong");
             last = iter.curr();
-        } while (!tokens.isEmpty())
-            nums.push(applyOp(tokens.pop(), nums.pop(), nums.pop()));
+        } while (!symbols.isEmpty())
+            nums.push(applyOp(symbols.pop(), nums.pop(), nums.pop()));
         return round(nums.pop());
     }
 

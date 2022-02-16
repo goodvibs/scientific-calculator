@@ -12,10 +12,6 @@ public class Expression {
                 .toCharArray();
     }
 
-    public Expression(char[] expression) {
-        this.expression = expression;
-    }
-
     public char getChar(int pos) {
         return expression[pos];
     }

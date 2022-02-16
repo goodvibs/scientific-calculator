@@ -3,46 +3,45 @@ package com.company.exptools;
 public class ExpressionIterator {
 
     private final Expression expression;
-    private int i;
+    private int index;
 
     public ExpressionIterator(Expression expression) {
         this.expression = expression;
-        i = -1;
+        index = -1;
     }
 
     public boolean hasNext() {
-        return i < expression.length() - 1;
+        return index < expression.length() - 1;
     }
 
     public char next() {
-        return expression.getChar(++i);
+        return expression.getChar(++index);
     }
 
-    public char next(int num) {
-        i += num;
-        return expression.getChar(i);
+    public void progress(int num) {
+        index += num;
     }
 
     public char peekNext() {
-        return expression.getChar(i + 1);
+        return expression.getChar(index + 1);
     }
 
     public char peekNext(int num) {
-        return expression.getChar(i + num);
+        return expression.getChar(index + num);
     }
 
     public char curr() {
-        return expression.getChar(i);
+        return expression.getChar(index);
     }
 
     public int pos() {
-        return i;
+        return index;
     }
 
     @Override
     public String toString() {
         return "ExpressionIterator{" +
-                "curr=" + (i >= 0 ? expression.getChar(i) : null) +
+                "curr=" + (index >= 0 ? expression.getChar(index) : null) +
                 '}';
     }
 }
